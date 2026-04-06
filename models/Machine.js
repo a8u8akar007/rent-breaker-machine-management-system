@@ -8,28 +8,27 @@ const machineSchema = new mongoose.Schema(
       required: [true, "Machine name is required"],
       trim: true,
     },
-    type: {
-      type: String,
-      required: [true, "Machine type is required"],
-      trim: true,
+    capacity: {
+      type: Number,
+      required: [true, "Machine capacity is required"],
+    },
+    rentalPricePerDay: {
+      type: Number,
+      required: [true, "Rental price per day is required"],
     },
     status: {
       type: String,
-      enum: ["available", "rented", "maintenance"],
-      default: "available",
+      enum: ["Available", "Rented", "Maintenance"],
+      default: "Available",
     },
-    rentPrice: {
-      type: Number,
-      required: [true, "Rent price is required"],
-    },
-    description: {
+    location: {
       type: String,
+      required: [true, "Machine location is required"],
       trim: true,
-      default: "",
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt fields automatically
+    timestamps: true,
   }
 );
 
