@@ -16,6 +16,7 @@ app.use(express.json());
 
 // --- Routes ---
 app.use("/api/machines", require("./routes/machineRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
 
 // Test route - check if server is running
 app.get("/", (req, res) => {

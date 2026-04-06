@@ -9,12 +9,13 @@ const {
   updateMachine,
   deleteMachine,
 } = require("../controllers/machineController");
+const { protect } = require("../middleware/authMiddleware");
 
 // Routes for /api/machines
-router.get("/", getAllMachines);         // GET    /api/machines
-router.get("/:id", getMachineById);     // GET    /api/machines/:id
-router.post("/", createMachine);        // POST   /api/machines
-router.put("/:id", updateMachine);      // PUT    /api/machines/:id
-router.delete("/:id", deleteMachine);   // DELETE /api/machines/:id
+router.get("/", protect, getAllMachines);         // GET    /api/machines
+router.get("/:id", protect, getMachineById);     // GET    /api/machines/:id
+router.post("/", protect, createMachine);        // POST   /api/machines
+router.put("/:id", protect, updateMachine);      // PUT    /api/machines/:id
+router.delete("/:id", protect, deleteMachine);   // DELETE /api/machines/:id
 
 module.exports = router;
