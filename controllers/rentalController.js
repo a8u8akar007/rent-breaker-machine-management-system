@@ -5,7 +5,7 @@ const Machine = require("../models/Machine");
 // @route   POST /api/rentals
 const createRental = async (req, res) => {
   try {
-    const { machineId, customerId, startDate, endDate } = req.body;
+    const { machineId, customerId, startDate, endDate, advancePayment = 0 } = req.body;
 
     // 1. Fetch machine to get its rental price and status
     const machine = await Machine.findById(machineId);
@@ -31,6 +31,7 @@ const createRental = async (req, res) => {
     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Convert to days
 
     const totalRent = daysDiff * machine.rentalPricePerDay;
+    const remainingBalance = totalRent - advancePayment;
 
     // 4. Create the rental
     const rental = await Rental.create({
@@ -39,6 +40,8 @@ const createRental = async (req, res) => {
       startDate,
       endDate,
       totalRent,
+      advancePayment,
+      remainingBalance,
     });
 
     // 5. Update machine status to "Rented"

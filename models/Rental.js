@@ -30,6 +30,14 @@ const rentalSchema = new mongoose.Schema(
       enum: ["Pending", "Active", "Completed"],
       default: "Pending",
     },
+    advancePayment: {
+      type: Number,
+      default: 0,
+    },
+    remainingBalance: {
+      type: Number,
+      required: [true, "Remaining balance is required"],
+    },
   },
   {
     timestamps: true,
