@@ -20,6 +20,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/customers", require("./routes/customerRoutes"));
 app.use("/api/rentals", require("./routes/rentalRoutes"));
 app.use("/api/maintenance", require("./routes/maintenanceRoutes"));
+app.use("/api/reports", require("./routes/reportRoutes"));
 
 // Test route - check if server is running
 app.get("/", (req, res) => {
