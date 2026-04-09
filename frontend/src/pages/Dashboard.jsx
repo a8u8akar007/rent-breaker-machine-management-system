@@ -27,16 +27,19 @@ const Dashboard = () => {
       <h1 style={{ marginBottom: '2rem' }}>Welcome back, {user?.name}! 👋</h1>
       
       <div className="grid">
-        <div className="card">
-          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>Total Machines</p>
+        <div className="card stat-card stat-card-primary">
+          <div className="stat-card-accent"></div>
+          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>🚜 Total Machines</p>
           <h2 style={{ fontSize: '2rem' }}>{stats?.totalMachines || 0}</h2>
         </div>
-        <div className="card">
-          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>Total Rentals</p>
+        <div className="card stat-card stat-card-warning">
+          <div className="stat-card-accent"></div>
+          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>📄 Total Rentals</p>
           <h2 style={{ fontSize: '2rem' }}>{stats?.totalRentals || 0}</h2>
         </div>
-        <div className="card">
-          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>Total Revenue</p>
+        <div className="card stat-card stat-card-success">
+          <div className="stat-card-accent"></div>
+          <p style={{ color: '#64748b', fontWeight: 500, marginBottom: '0.5rem' }}>💰 Total Revenue</p>
           <h2 style={{ fontSize: '2rem', color: '#10b981' }}>${stats?.totalRevenue?.toLocaleString() || 0}</h2>
         </div>
       </div>

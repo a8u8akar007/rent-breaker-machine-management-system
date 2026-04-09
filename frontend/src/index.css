@@ -77,8 +77,30 @@ button {
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease-in-out;
 }
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.stat-card-primary .stat-card-accent { background-color: var(--primary-color); }
+.stat-card-success .stat-card-accent { background-color: var(--success); }
+.stat-card-warning .stat-card-accent { background-color: var(--warning); }
 
 /* Forms */
 .form-group {
@@ -102,7 +124,7 @@ input, select, textarea {
 input:focus {
   outline: none;
   border-color: var(--primary-color);
-  ring: 2px solid var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .btn {
@@ -135,8 +157,12 @@ th, td {
 }
 
 th {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--secondary-color);
 }
 
 /* Status Badges */
