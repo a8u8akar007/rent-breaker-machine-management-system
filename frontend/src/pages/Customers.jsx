@@ -26,62 +26,64 @@ const Customers = () => {
   };
 
   return (
-    <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Customers</h1>
+    <div className="container animate-fade">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+        <h1 style={{ fontWeight: 800 }}>Customers</h1>
         <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
           {showAddForm ? 'Cancel' : '+ New Customer'}
         </button>
       </div>
 
       {showAddForm && (
-        <div className="card">
-          <h3>Add New Customer</h3>
-          <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
+        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+          <h3 style={{ fontWeight: 700, marginBottom: '1.5rem' }}>Register New Customer</h3>
+          <form onSubmit={handleSubmit}>
             <div className="grid">
               <div className="form-group">
                 <label>Full Name</label>
-                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                <input type="text" placeholder="e.g. Jane Smith" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
               </div>
               <div className="form-group">
                 <label>Phone Number</label>
-                <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required />
+                <input type="text" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required />
               </div>
               <div className="form-group">
-                <label>CNIC</label>
-                <input type="text" value={formData.cnic} onChange={e => setFormData({...formData, cnic: e.target.value})} required />
+                <label>CNIC / ID Number</label>
+                <input type="text" placeholder="12345-6789012-3" value={formData.cnic} onChange={e => setFormData({...formData, cnic: e.target.value})} required />
               </div>
               <div className="form-group">
-                <label>Address</label>
-                <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} required />
+                <label>Residential Address</label>
+                <input type="text" placeholder="Street, City, Zip" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} required />
               </div>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Register Customer</button>
+            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Register Profile</button>
           </form>
         </div>
       )}
 
-      <div className="card" style={{ padding: 0 }}>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>CNIC</th>
-              <th>Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(c => (
-              <tr key={c._id}>
-                <td style={{ fontWeight: 600 }}>{c.name}</td>
-                <td>{c.phone}</td>
-                <td>{c.cnic}</td>
-                <td>{c.address}</td>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Contact Number</th>
+                <th>Identity (CNIC)</th>
+                <th>Primary Address</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {customers.map(c => (
+                <tr key={c._id}>
+                  <td style={{ fontWeight: 700, color: 'var(--text)' }}>{c.name}</td>
+                  <td style={{ fontWeight: 600 }}>{c.phone}</td>
+                  <td>{c.cnic}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>{c.address}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

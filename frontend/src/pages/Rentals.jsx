@@ -41,93 +41,95 @@ const Rentals = () => {
   };
 
   return (
-    <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Rentals</h1>
+    <div className="container animate-fade">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+        <h1 style={{ fontWeight: 800 }}>Rentals</h1>
         <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
           {showAddForm ? 'Cancel' : '+ New Rental'}
         </button>
       </div>
 
       {showAddForm && (
-        <div className="card">
-          <h3>Process New Rental</h3>
-          <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
+        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+          <h3 style={{ fontWeight: 700, marginBottom: '1.5rem' }}>Initialize New Rental Agreement</h3>
+          <form onSubmit={handleSubmit}>
             <div className="grid">
               <div className="form-group">
-                <label>Select Machine</label>
+                <label>Select Asset</label>
                 <select value={formData.machineId} onChange={e => setFormData({...formData, machineId: e.target.value})} required>
-                  <option value="">Choose a machine...</option>
+                  <option value="">Search available machines...</option>
                   {machines.map(m => (
                     <option key={m._id} value={m._id}>{m.name} (${m.rentalPricePerDay}/day)</option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Select Customer</label>
+                <label>Customer Profile</label>
                 <select value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} required>
-                  <option value="">Choose a customer...</option>
+                  <option value="">Search customer...</option>
                   {customers.map(c => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Start Date</label>
+                <label>Commencement Date</label>
                 <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} required />
               </div>
               <div className="form-group">
-                <label>End Date</label>
+                <label>Completion Date</label>
                 <input type="date" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} required />
               </div>
               <div className="form-group">
-                <label>Advance Payment ($)</label>
-                <input type="number" value={formData.advancePayment} onChange={e => setFormData({...formData, advancePayment: e.target.value})} required />
+                <label>Advance Deposit ($)</label>
+                <input type="number" placeholder="e.g. 100" value={formData.advancePayment} onChange={e => setFormData({...formData, advancePayment: e.target.value})} required />
               </div>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Confirm Rental</button>
+            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>Finalize Agreement</button>
           </form>
         </div>
       )}
 
-      <div className="card" style={{ padding: 0 }}>
-        <table>
-          <thead>
-            <tr>
-              <th>Machine</th>
-              <th>Customer</th>
-              <th>Period</th>
-              <th>Finances</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rentals.map(r => (
-              <tr key={r._id}>
-                <td>{r.machineId?.name}</td>
-                <td>{r.customerId?.name}</td>
-                <td style={{ fontSize: '0.875rem' }}>
-                  {new Date(r.startDate).toLocaleDateString()} - {new Date(r.endDate).toLocaleDateString()}
-                </td>
-                <td>
-                  <div style={{ fontSize: '0.875rem' }}>Total: <strong>${r.totalRent}</strong></div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Balance: ${r.remainingBalance}</div>
-                </td>
-                <td>
-                  <span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span>
-                </td>
-                <td>
-                  {r.status !== 'Completed' && (
-                    <button className="btn" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', background: '#f1f5f9' }} onClick={() => completeRental(r._id)}>
-                      Complete
-                    </button>
-                  )}
-                </td>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Asset Details</th>
+                <th>Client</th>
+                <th>Agreement Period</th>
+                <th>Financials</th>
+                <th>Status</th>
+                <th>Operations</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rentals.map(r => (
+                <tr key={r._id}>
+                  <td style={{ fontWeight: 700 }}>{r.machineId?.name}</td>
+                  <td style={{ fontWeight: 600 }}>{r.customerId?.name}</td>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    {new Date(r.startDate).toLocaleDateString()} — {new Date(r.endDate).toLocaleDateString()}
+                  </td>
+                  <td>
+                    <div style={{ fontSize: '0.9rem' }}>Total: <strong>${r.totalRent}</strong></div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Balance: ${r.remainingBalance}</div>
+                  </td>
+                  <td>
+                    <span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span>
+                  </td>
+                  <td>
+                    {r.status !== 'Completed' && (
+                      <button className="btn" style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', background: 'var(--primary-extralight)', color: 'var(--primary-hover)', fontWeight: 800 }} onClick={() => completeRental(r._id)}>
+                        COMPLETE
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

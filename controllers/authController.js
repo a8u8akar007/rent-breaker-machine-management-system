@@ -12,12 +12,18 @@ const generateToken = (userId) => {
 // @route   POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
+    console.log("Incoming registration request body:", req.body);
     const { name, email, password, role } = req.body;
+
+    // Validation: Check for required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Please provide name, email, and password." });
+    }
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "User already exists with this email" });
+      return res.status(400).json({ message: "An account with this email already exists." });
     }
 
     // Create new user (password is hashed automatically by the pre-save hook)
@@ -31,7 +37,23 @@ const registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Registration error:", error);
+    
+    // Handle Mongoose duplicate key error (code 11000)
+    if (error.code === 11000) {
+      console.log("Duplicate email error");
+      return res.status(400).json({ message: "An account with this email already exists." });
+    }
+
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(val => val.message);
+      console.log("Validation error:", messages);
+      return res.status(400).json({ message: messages.join(", ") });
+    }
+
+    console.log("General error:", error.message);
+    res.status(400).json({ message: error.message || "An unexpected error occurred during registration." });
   }
 };
 
