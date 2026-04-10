@@ -16,10 +16,10 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(252, 253, 252, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(150, 221, 153, 0.15);
+  border-bottom: 1px solid var(--border-light);
   box-shadow: 0 2px 20px rgba(150, 221, 153, 0.08);
 }
 
@@ -133,7 +133,7 @@
 .orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(150, 221, 153, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(150, 221, 153, 0.14) 0%, transparent 70%);
   top: -200px;
   right: -100px;
 }
@@ -141,7 +141,7 @@
 .orb-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(165, 225, 166, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(165, 225, 166, 0.08) 0%, transparent 70%);
   bottom: 0;
   left: -100px;
 }
@@ -320,8 +320,8 @@
 }
 
 .hd-stat {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #fff;
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 1rem 0.75rem;
   text-align: center;
@@ -534,13 +534,14 @@
 }
 
 .feature-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
   padding: 2rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .feature-card::before {
@@ -772,13 +773,14 @@
 }
 
 .testimonial-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
   padding: 2rem;
   text-align: left;
   transition: all 0.3s ease;
   position: relative;
+  box-shadow: var(--shadow-md);
 }
 
 .testimonial-card::after {

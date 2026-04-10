@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import AppShell from './components/AppShell';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Landing from './pages/Landing';
@@ -27,10 +28,10 @@ function App() {
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/machines" element={<PrivateRoute><Machines /></PrivateRoute>} />
-        <Route path="/customers" element={<PrivateRoute><Customers /></PrivateRoute>} />
-        <Route path="/rentals" element={<PrivateRoute><Rentals /></PrivateRoute>} />
-        <Route path="/maintenance" element={<PrivateRoute><Maintenance /></PrivateRoute>} />
+        <Route path="/machines" element={<PrivateRoute><AppShell title="Machine Fleet" subtitle="Fleet · Machines"><Machines /></AppShell></PrivateRoute>} />
+        <Route path="/customers" element={<PrivateRoute><AppShell title="Customer Directory" subtitle="Fleet · Customers"><Customers /></AppShell></PrivateRoute>} />
+        <Route path="/rentals" element={<PrivateRoute><AppShell title="Rental Agreements" subtitle="Fleet · Rentals"><Rentals /></AppShell></PrivateRoute>} />
+        <Route path="/maintenance" element={<PrivateRoute><AppShell title="Maintenance Logs" subtitle="Fleet · Maintenance"><Maintenance /></AppShell></PrivateRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />

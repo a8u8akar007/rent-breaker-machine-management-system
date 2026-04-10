@@ -1,17 +1,41 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Service from '../api/services';
 import '../landing.css';
 
 const Landing = () => {
+  const [stats, setStats] = useState(null);
+  const [recentMachines, setRecentMachines] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLandingData = async () => {
+      try {
+        const [s, m] = await Promise.all([
+          Service.dashboard.getStats(),
+          Service.machines.get()
+        ]);
+        setStats(s.data);
+        setRecentMachines(m.data.slice(0, 4));
+      } catch (e) {
+        console.error('Landing fetch error:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLandingData();
+  }, []);
+
   return (
     <div className="landing-root">
 
       {/* ── NAVBAR ── */}
       <nav className="landing-nav">
         <div className="landing-nav-inner">
-          <a href="#" className="landing-logo">
+          <Link to="/" className="landing-logo">
             <span className="landing-logo-dot" />
             RentBreaker
-          </a>
+          </Link>
           <div className="landing-nav-links">
             <a href="#features">Features</a>
             <a href="#stats">Stats</a>
@@ -29,7 +53,7 @@ const Landing = () => {
         <div className="hero-bg-orb orb-1" />
         <div className="hero-bg-orb orb-2" />
         <div className="hero-content">
-          <div className="hero-badge">🚀 Trusted by 200+ fleet managers</div>
+          <div className="hero-badge">🚀 Empowering equipment fleet managers</div>
           <h1 className="hero-title">
             The Smarter Way to
             <span className="hero-title-gradient"> Manage Your Fleet</span>
@@ -44,78 +68,81 @@ const Landing = () => {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
             <Link to="/login" className="hero-cta-secondary">
-              View Demo
+              View Dashboard
             </Link>
           </div>
           <div className="hero-trust">
             <span>✓ No credit card required</span>
-            <span>✓ 14-day free trial</span>
+            <span>✓ Secure & Scalable</span>
             <span>✓ Cancel anytime</span>
           </div>
         </div>
 
-        {/* Dashboard Preview Card */}
+        {/* Dashboard Preview Card - LIVE DATA */}
         <div className="hero-visual">
           <div className="hero-dashboard-card">
             <div className="hd-header">
               <div className="hd-dot red" /><div className="hd-dot yellow" /><div className="hd-dot green" />
-              <span className="hd-title">RentBreaker Dashboard</span>
+              <span className="hd-title">RentBreaker Dashboard Preview</span>
             </div>
             <div className="hd-stats-row">
-              {[
-                { label: 'Total Machines', value: '48', delta: '+3 this week', icon: '🚜' },
-                { label: 'Active Rentals', value: '31', delta: '+7 this month', icon: '📋' },
-                { label: 'Revenue', value: '$42k', delta: '+18% MoM', icon: '💰' },
-              ].map(s => (
-                <div key={s.label} className="hd-stat">
-                  <div className="hd-stat-icon">{s.icon}</div>
-                  <div className="hd-stat-val">{s.value}</div>
-                  <div className="hd-stat-label">{s.label}</div>
-                  <div className="hd-stat-delta">{s.delta}</div>
-                </div>
-              ))}
+              <div className="hd-stat">
+                <div className="hd-stat-icon">🚜</div>
+                <div className="hd-stat-val">{stats?.totalMachines || 0}</div>
+                <div className="hd-stat-label">Total Machines</div>
+                <div className="hd-stat-delta">Live inventory</div>
+              </div>
+              <div className="hd-stat">
+                <div className="hd-stat-icon">📋</div>
+                <div className="hd-stat-val">{stats?.activeRentals || 0}</div>
+                <div className="hd-stat-label">Active Rentals</div>
+                <div className="hd-stat-delta">{stats?.activeRentals > 0 ? 'Fleet working' : 'Ready to rent'}</div>
+              </div>
+              <div className="hd-stat">
+                <div className="hd-stat-icon">💰</div>
+                <div className="hd-stat-val">${stats?.totalRevenue ? (stats.totalRevenue/1000).toFixed(1) : '0'}k</div>
+                <div className="hd-stat-label">Total Revenue</div>
+                <div className="hd-stat-delta">Lifetime billing</div>
+              </div>
             </div>
             <div className="hd-table-preview">
               <div className="hd-table-header">
-                <span>Machine</span><span>Status</span><span>Revenue</span>
+                <span>Machine</span><span>Status</span><span>Price/Day</span>
               </div>
-              {[
-                { name: 'Excavator XT-500', status: 'Rented', rev: '$1,200' },
-                { name: 'Crane Pro 220', status: 'Available', rev: '$980' },
-                { name: 'Forklift FX-80', status: 'Maintenance', rev: '$640' },
-                { name: 'Bulldozer BD-12', status: 'Rented', rev: '$1,890' },
-              ].map(row => (
-                <div key={row.name} className="hd-table-row">
-                  <span className="hd-table-name">{row.name}</span>
-                  <span className={`hd-pill hd-pill-${row.status.toLowerCase()}`}>{row.status}</span>
-                  <span className="hd-table-rev">{row.rev}</span>
+              {recentMachines.length > 0 ? recentMachines.map(m => (
+                <div key={m._id} className="hd-table-row">
+                  <span className="hd-table-name">{m.name}</span>
+                  <span className={`hd-pill hd-pill-${m.status.toLowerCase()}`}>{m.status}</span>
+                  <span className="hd-table-rev">${m.rentalPricePerDay}</span>
                 </div>
-              ))}
+              )) : (
+                <div style={{padding:'1.5rem', textAlign:'center', fontSize:'0.8rem', color:'var(--text-muted)'}}>No machines registered yet.</div>
+              )}
             </div>
           </div>
           {/* floating badges */}
           <div className="hero-float-badge badge-a">
             <span className="float-icon">✅</span>
             <div>
-              <div className="float-title">Rental Completed</div>
-              <div className="float-sub">Crane Pro 220 · Just now</div>
+              <div className="float-title">System Verified</div>
+              <div className="float-sub">Backend Active</div>
             </div>
           </div>
           <div className="hero-float-badge badge-b">
             <span className="float-icon">⚡</span>
             <div>
-              <div className="float-title">Revenue Up 18%</div>
-              <div className="float-sub">vs last month</div>
+              <div className="float-title">Real-time Data</div>
+              <div className="float-sub">MERN Stack Power</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── LOGOS / SOCIAL PROOF ── */}
+      {/* ── LOGOS ── */}
       <section className="logos-section">
-        <p className="logos-label">Trusted by leading equipment businesses</p>
+        <p className="logos-label">Standardized for reliability across Pakistani markets</p>
         <div className="logos-row">
-          {['AlphaRent Co.', 'IronFleet LLC', 'MachPro Group', 'HeavyWork Inc.', 'SiteGear Ltd.'].map(l => (
+          {['HeavyLift Pakistan', 'Sindh Rents', 'Lahore Fleet Co.', 'Machina Group', 'BuildDirect.'].map(l => (
             <div key={l} className="logo-chip">{l}</div>
           ))}
         </div>
@@ -129,42 +156,12 @@ const Landing = () => {
 
         <div className="features-grid">
           {[
-            {
-              icon: '🚜',
-              title: 'Smart Fleet Management',
-              desc: `Track every machine's availability, location, and status in real time. Instantly know what's rented, idle, or under maintenance.`,
-              color: '#96DD99',
-            },
-            {
-              icon: '📋',
-              title: 'Seamless Rental Agreements',
-              desc: 'Create, manage, and close rental agreements in seconds. Automated billing calculations and balance tracking included.',
-              color: '#A5E1A6',
-            },
-            {
-              icon: '👤',
-              title: 'Customer Profiles',
-              desc: 'Maintain rich customer profiles with contact info, rental history, and CNIC records for full compliance and traceability.',
-              color: '#B3E5B3',
-            },
-            {
-              icon: '🔧',
-              title: 'Maintenance Logging',
-              desc: 'Log service records and repair costs per machine. Stay on top of preventive maintenance to reduce downtime.',
-              color: '#C2E9BF',
-            },
-            {
-              icon: '📊',
-              title: 'Revenue Analytics',
-              desc: 'High-level revenue dashboards with trend analysis, machine-level performance, and balance reconciliation.',
-              color: '#D7F5D3',
-            },
-            {
-              icon: '🔐',
-              title: 'Role-Based Access',
-              desc: `Admin and user roles give your team the right level of access. Secure JWT authentication out of the box.`,
-              color: '#96DD99',
-            },
+            { icon: '🚜', title: 'Smart Fleet Management', desc: `Track every machine's availability, location, and status in real time.`, color: '#96DD99' },
+            { icon: '📋', title: 'Seamless Rental Agreements', desc: 'Create and manage contracts. Automated billing and balance tracking included.', color: '#A5E1A6' },
+            { icon: '👤', title: 'Customer Profiles', desc: 'Maintain customer contact info, rental history, and CNIC records.', color: '#B3E5B3' },
+            { icon: '🔧', title: 'Maintenance Logging', desc: 'Log service records and costs per machine. Catch issues early.', color: '#C2E9BF' },
+            { icon: '📊', title: 'Revenue Analytics', desc: 'High-level dashboards with trend analysis and machine-level performance.', color: '#D7F5D3' },
+            { icon: '🔐', title: 'Role-Based Access', desc: `Secure Admin and User roles with JWT authentication.`, color: '#96DD99' },
           ].map(f => (
             <div key={f.title} className="feature-card">
               <div className="feature-icon" style={{ background: f.color + '30', border: `1px solid ${f.color}` }}>
@@ -178,46 +175,24 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="how-section">
-        <div className="section-label">How It Works</div>
-        <h2 className="section-title">Up and running in minutes</h2>
-        <div className="how-steps">
-          {[
-            { step: '01', title: 'Create Your Account', desc: 'Sign up as Admin or User and configure your organization settings instantly.' },
-            { step: '02', title: 'Add Your Machines', desc: 'Register your fleet with capacity, pricing, and location details in one simple form.' },
-            { step: '03', title: 'Onboard Customers', desc: 'Build a searchable customer database with all the details you need for compliance.' },
-            { step: '04', title: 'Start Renting', desc: 'Assign machines to customers, track agreements, and watch revenue grow automatically.' },
-          ].map((s, i) => (
-            <div key={s.step} className="how-step">
-              <div className="how-step-number">{s.step}</div>
-              {i < 3 && <div className="how-step-line" />}
-              <h3 className="how-step-title">{s.title}</h3>
-              <p className="how-step-desc">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── STATS ── */}
       <section id="stats" className="stats-section">
         <div className="stats-inner">
           <div className="stats-text">
-            <div className="section-label" style={{ color: 'var(--primary)' }}>The Numbers</div>
-            <h2 className="section-title" style={{ color: '#fff' }}>Built for scale,<br />trusted by teams</h2>
+            <div className="section-label" style={{ color: 'var(--primary)' }}>Real-time Statistics</div>
+            <h2 className="section-title" style={{ color: '#fff' }}>Driven by backend data,<br />proven by usage</h2>
             <p style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginTop: '1rem', maxWidth: '340px' }}>
-              RentBreaker powers fleets of all sizes — from small rental shops to large equipment companies with hundreds of assets.
+              Our platform calculates your organization's performance live directly from your database.
             </p>
-            <Link to="/signup" className="stats-cta">Start Your Journey →</Link>
+            <Link to="/signup" className="stats-cta">Build Your Fleet →</Link>
           </div>
           <div className="stats-grid">
             {[
-              { val: '200+', label: 'Fleet Managers', icon: '👥' },
-              { val: '5,000+', label: 'Machines Managed', icon: '🚜' },
-              { val: '$2M+', label: 'Revenue Tracked', icon: '💰' },
-              { val: '99.9%', label: 'Uptime SLA', icon: '⚡' },
-              { val: '14 days', label: 'Free Trial', icon: '🎁' },
-              { val: '< 5min', label: 'Setup Time', icon: '🚀' },
+              { val: stats?.totalCustomers || 0, label: 'Customers Registered', icon: '👥' },
+              { val: stats?.totalMachines || 0, label: 'Machines Tracked', icon: '🚜' },
+              { val: `$${stats?.totalRevenue ? (stats.totalRevenue/1000).toFixed(1) : '0'}k`, label: 'Total Volume', icon: '💰' },
+              { val: '100%', label: 'Cloud Uptime', icon: '⚡' },
+              { val: '24/7', label: 'Monitoring', icon: '🚀' },
             ].map(s => (
               <div key={s.label} className="stat-box">
                 <div className="stat-box-icon">{s.icon}</div>
@@ -231,29 +206,13 @@ const Landing = () => {
 
       {/* ── TESTIMONIALS ── */}
       <section id="testimonials" className="testimonials-section">
-        <div className="section-label">What Teams Say</div>
-        <h2 className="section-title">Loved by fleet managers worldwide</h2>
-
+        <div className="section-label">User Feedback</div>
+        <h2 className="section-title">Designed for usability</h2>
         <div className="testimonials-grid">
           {[
-            {
-              quote: "RentBreaker cut our rental processing time by 60%. The dashboard gives us instant visibility into our entire fleet — it's been a game changer.",
-              name: 'Hamza Riaz',
-              role: 'Fleet Operations Manager, IronFleet LLC',
-              avatar: 'H',
-            },
-            {
-              quote: "The maintenance logging feature alone saved us thousands in repair costs. We catch issues before they become expensive problems.",
-              name: 'Sara Khan',
-              role: 'CEO, AlphaRent Co.',
-              avatar: 'S',
-            },
-            {
-              quote: "Finally, a system that's actually built for equipment rental. The billing automation is flawless and our customers love the professionalism.",
-              name: 'Umar Siddiqui',
-              role: 'Operations Lead, SiteGear Ltd.',
-              avatar: 'U',
-            },
+            { quote: "Intuitive and powerful. My team picked it up in a day.", name: 'Hamza', role: 'Operations', avatar: 'H' },
+            { quote: "The billing accuracy has improved significantly.", name: 'Sara', role: 'Finance', avatar: 'S' },
+            { quote: "Great for tracking machine downtime.", name: 'Umar', role: 'Maintenance', avatar: 'U' },
           ].map(t => (
             <div key={t.name} className="testimonial-card">
               <div className="testimonial-stars">★★★★★</div>
@@ -275,7 +234,7 @@ const Landing = () => {
         <div className="cta-orb cta-orb-1" />
         <div className="cta-orb cta-orb-2" />
         <h2 className="cta-title">Ready to take control of your fleet?</h2>
-        <p className="cta-sub">Join 200+ equipment businesses using RentBreaker to grow faster and operate smarter.</p>
+        <p className="cta-sub">Join the growing community of businesses using RentBreaker to operate smarter.</p>
         <div className="cta-btn-group">
           <Link to="/signup" className="hero-cta-primary">Create Free Account</Link>
           <Link to="/login" className="cta-ghost-btn">Sign In Instead</Link>
@@ -295,27 +254,21 @@ const Landing = () => {
           <div className="footer-links-group">
             <div className="footer-col">
               <div className="footer-col-title">Platform</div>
-              <a href="#features">Features</a>
-              <a href="#stats">Analytics</a>
-              <Link to="/signup">Get Started</Link>
+              <Link to="/signup">Register</Link>
+              <Link to="/login">Login</Link>
+              <a href="#stats">Stats</a>
             </div>
             <div className="footer-col">
-              <div className="footer-col-title">Company</div>
-              <a href="#">About</a>
-              <a href="#">Blog</a>
-              <a href="#">Careers</a>
-            </div>
-            <div className="footer-col">
-              <div className="footer-col-title">Support</div>
-              <a href="#">Documentation</a>
-              <a href="#">Contact Us</a>
+              <div className="footer-col-title">Resources</div>
+              <a href="#">Help Center</a>
+              <a href="#">API Docs</a>
               <a href="#">Status</a>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
           <span>© 2026 RentBreaker. All rights reserved.</span>
-          <span>Made with 💚 for equipment teams</span>
+          <span>Managed Backend Solution</span>
         </div>
       </footer>
     </div>

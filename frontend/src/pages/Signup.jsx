@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/api';
+import Service from '../api/services';
 import '../auth.css';
 
 const Signup = () => {
@@ -10,7 +10,12 @@ const Signup = () => {
   const [error, setError]         = useState('');
   const [success, setSuccess]     = useState('');
   const [loading, setLoading]     = useState(false);
+  const [stats, setStats]         = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    Service.dashboard.getStats().then(res => setStats(res.data)).catch(() => {});
+  }, []);
 
   const calcStrength = (val) => {
     let s = 0;
@@ -26,7 +31,7 @@ const Signup = () => {
     setError(''); setSuccess('');
     setLoading(true);
     try {
-      await api.post('/auth/register', formData);
+      await Service.auth.register(formData);
       setSuccess('Account created! Redirecting to sign in…');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -54,17 +59,15 @@ const Signup = () => {
             <span className="auth-left-accent">center awaits.</span>
           </h2>
           <p className="auth-left-sub">
-            Set up your account in under 2 minutes and start managing your rental fleet today.
+            Join the automated future of equipment rentals. Manage <strong>{stats?.totalMachines || 'multiple'}</strong> assets effortlessly.
           </p>
 
-          {/* Feature checklist */}
           <div className="auth-checklist">
             {[
               'Real-time fleet status tracking',
               'Automated rental billing',
-              'Customer profile management',
-              'Maintenance logs & cost reports',
-              'Role-based team access control',
+              'Comprehensive client directory',
+              'Maintenance & cost analytics',
             ].map(item => (
               <div key={item} className="auth-check-item">
                 <span className="auth-check-icon">✓</span>
@@ -83,7 +86,7 @@ const Signup = () => {
         <div className="auth-card">
           <div className="auth-card-header">
             <h1 className="auth-title">Create your account</h1>
-            <p className="auth-subtitle">Free for 14 days · No credit card required</p>
+            <p className="auth-subtitle">Get started with a secure RentBreaker profile</p>
           </div>
 
           {error && (
@@ -100,7 +103,6 @@ const Signup = () => {
           )}
 
           <form onSubmit={handleSignup} className="auth-form">
-            {/* Full Name */}
             <div className="auth-field">
               <label className="auth-label">Full name</label>
               <div className="auth-input-wrap">
@@ -110,7 +112,7 @@ const Signup = () => {
                 <input
                   type="text"
                   className="auth-input"
-                  placeholder="John Doe"
+                  placeholder="name"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -118,9 +120,8 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className="auth-field">
-              <label className="auth-label">Work email</label>
+              <label className="auth-label">Email address</label>
               <div className="auth-input-wrap">
                 <span className="auth-input-icon">
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -128,7 +129,7 @@ const Signup = () => {
                 <input
                   type="email"
                   className="auth-input"
-                  placeholder="you@company.com"
+                  placeholder="name@company.com"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                   required
@@ -136,7 +137,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div className="auth-field">
               <label className="auth-label">Password</label>
               <div className="auth-input-wrap">
@@ -146,7 +146,7 @@ const Signup = () => {
                 <input
                   type={showPass ? 'text' : 'password'}
                   className="auth-input"
-                  placeholder="Min. 8 characters"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={e => { setFormData({ ...formData, password: e.target.value }); calcStrength(e.target.value); }}
                   required
@@ -159,7 +159,6 @@ const Signup = () => {
                   )}
                 </button>
               </div>
-              {/* Password strength bar */}
               {formData.password && (
                 <div className="auth-strength">
                   <div className="auth-strength-bars">
@@ -176,7 +175,6 @@ const Signup = () => {
               )}
             </div>
 
-            {/* Role Selector */}
             <div className="auth-field">
               <label className="auth-label">Account type</label>
               <div className="auth-role-selector">
@@ -188,7 +186,6 @@ const Signup = () => {
                   <span className="auth-role-icon">👤</span>
                   <div>
                     <div className="auth-role-title">Standard User</div>
-                    <div className="auth-role-desc">Browse & manage rentals</div>
                   </div>
                   {formData.role === 'user' && <span className="auth-role-check">✓</span>}
                 </button>
@@ -200,7 +197,6 @@ const Signup = () => {
                   <span className="auth-role-icon">🔐</span>
                   <div>
                     <div className="auth-role-title">Administrator</div>
-                    <div className="auth-role-desc">Full fleet & system access</div>
                   </div>
                   {formData.role === 'admin' && <span className="auth-role-check">✓</span>}
                 </button>
@@ -214,11 +210,6 @@ const Signup = () => {
                 <>Create Account <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
               )}
             </button>
-
-            <p className="auth-terms">
-              By creating an account you agree to our{' '}
-              <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-            </p>
           </form>
 
           <p className="auth-switch">

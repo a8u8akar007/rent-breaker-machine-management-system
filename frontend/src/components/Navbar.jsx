@@ -11,8 +11,11 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Hide the app navbar on the public landing page or auth pages
-  if (!user || ['/', '/login', '/signup'].includes(location.pathname)) return null;
+  // All authenticated pages use dashboard sidebar. Only hide for unauthenticated public routes.
+  if (!user) return null;
+  // Hide on all pages with a self-contained layout
+  const selfContained = ['/', '/login', '/signup', '/dashboard', '/machines', '/customers', '/rentals', '/maintenance'];
+  if (selfContained.includes(location.pathname)) return null;
 
   return (
     <nav className="navbar">
