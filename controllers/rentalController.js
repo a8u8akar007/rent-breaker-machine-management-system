@@ -1,39 +1,43 @@
 const Rental = require("../models/Rental");
 const Machine = require("../models/Machine");
 
+/**
+ * ── RENTAL CONTROLLER ──
+ * Manages the transition of machines from Available to Rented
+ * and handles financial calculations for rental agreements.
+ */
+
 // @desc    Create a new rental
 // @route   POST /api/rentals
-const createRental = async (req, res) => {
+const createRental = async (req, res, next) => {
   try {
     const { machineId, customerId, startDate, endDate, advancePayment = 0 } = req.body;
 
-    // 1. Fetch machine to get its rental price and status
     const machine = await Machine.findById(machineId);
     if (!machine) {
-      return res.status(404).json({ message: "Machine not found" });
+      res.status(404);
+      return next(new Error("Machine not found"));
     }
 
-    // 2. Check if machine is available
     if (machine.status !== "Available") {
-      return res.status(400).json({ message: `Machine is currently ${machine.status}` });
+      res.status(400);
+      return next(new Error(`Machine is currently ${machine.status}`));
     }
 
-    // 3. Calculate total rent
     const start = new Date(startDate);
     const end = new Date(endDate);
     
-    // Ensure end date is after start date
     if (end <= start) {
-      return res.status(400).json({ message: "End date must be after start date" });
+      res.status(400);
+      return next(new Error("End date must be after start date"));
     }
 
     const timeDiff = end.getTime() - start.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Convert to days
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
 
     const totalRent = daysDiff * machine.rentalPricePerDay;
     const remainingBalance = totalRent - advancePayment;
 
-    // 4. Create the rental
     const rental = await Rental.create({
       machineId,
       customerId,
@@ -44,19 +48,19 @@ const createRental = async (req, res) => {
       remainingBalance,
     });
 
-    // 5. Update machine status to "Rented"
     machine.status = "Rented";
     await machine.save();
 
     res.status(201).json(rental);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
+    next(error);
   }
 };
 
 // @desc    Get all rentals
 // @route   GET /api/rentals
-const getAllRentals = async (req, res) => {
+const getAllRentals = async (req, res, next) => {
   try {
     const rentals = await Rental.find()
       .populate("machineId", "name capacity location")
@@ -64,22 +68,22 @@ const getAllRentals = async (req, res) => {
     
     res.status(200).json(rentals);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
 // @desc    Update rental status
 // @route   PUT /api/rentals/:id
-const updateRentalStatus = async (req, res) => {
+const updateRentalStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
 
     const rental = await Rental.findById(req.params.id);
     if (!rental) {
-      return res.status(404).json({ message: "Rental not found" });
+      res.status(404);
+      return next(new Error("Rental not found"));
     }
 
-    // If status is being updated to "Completed", free up the machine
     if (status === "Completed" && rental.status !== "Completed") {
       const machine = await Machine.findById(rental.machineId);
       if (machine) {
@@ -93,7 +97,34 @@ const updateRentalStatus = async (req, res) => {
 
     res.status(200).json(rental);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
+    next(error);
+  }
+};
+
+// @desc    Delete a rental
+// @route   DELETE /api/rentals/:id
+const deleteRental = async (req, res, next) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) {
+      res.status(404);
+      return next(new Error("Rental record not found"));
+    }
+    
+    // If deleting an active rental, free the machine
+    if (rental.status !== "Completed") {
+      const machine = await Machine.findById(rental.machineId);
+      if (machine) {
+        machine.status = "Available";
+        await machine.save();
+      }
+    }
+
+    await Rental.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Rental deleted successfully" });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -101,4 +132,5 @@ module.exports = {
   createRental,
   getAllRentals,
   updateRentalStatus,
+  deleteRental
 };

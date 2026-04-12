@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-// User Schema
+// ── USER DATA SCHEMA ──
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -32,18 +32,14 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password before saving to database
+// ── PASSCODE ENCRYPTION (PRE-SAVE) ──
 userSchema.pre("save", async function () {
-  // Only hash if password is new or modified
-  if (!this.isModified("password")) {
-    return;
-  }
-
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Method to compare entered password with hashed password
+// ── AUTHENTICATION HELPERS ──
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

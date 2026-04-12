@@ -5,23 +5,26 @@ const Navbar = () => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
 
+  // ── AUTHENTICATION: LOGOUT HANDLER ──
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
   };
 
-  // All authenticated pages use dashboard sidebar. Only hide for unauthenticated public routes.
+  // ── RENDER CONDITIONALS ──
   if (!user) return null;
-  // Hide on all pages with a self-contained layout
   const selfContained = ['/', '/login', '/signup', '/dashboard', '/machines', '/customers', '/rentals', '/maintenance'];
   if (selfContained.includes(location.pathname)) return null;
 
   return (
     <nav className="navbar">
+      {/* ── LOGO SECTION ── */}
       <Link to="/dashboard" className="nav-logo">
         RentBreaker
       </Link>
+
+      {/* ── NAVIGATION LINKS ── */}
       <div className="nav-links">
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/machines">Machines</Link>
@@ -29,6 +32,8 @@ const Navbar = () => {
         <Link to="/rentals">Rentals</Link>
         <Link to="/maintenance">Maintenance</Link>
       </div>
+
+      {/* ── USER PROFILE & SESSION ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)' }}>
           {user.name}

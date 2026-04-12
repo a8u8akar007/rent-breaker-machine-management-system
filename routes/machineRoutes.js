@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-// Import controller functions
+// ── CONTROLLER INTEGRATION ──
 const {
   getAllMachines,
   getMachineById,
@@ -9,13 +9,29 @@ const {
   updateMachine,
   deleteMachine,
 } = require("../controllers/machineController");
-const { protect, admin } = require("../middleware/authMiddleware");
 
-// Routes for /api/machines
-router.get("/", protect, getAllMachines);         // GET    /api/machines
-router.get("/:id", protect, getMachineById);     // GET    /api/machines/:id
-router.post("/", protect, admin, createMachine);  // POST   /api/machines
-router.put("/:id", protect, admin, updateMachine); // PUT    /api/machines/:id
-router.delete("/:id", protect, admin, deleteMachine); // DELETE /api/machines/:id
+// ── SECURITY MIDDLEWARE ──
+const { protect, admin } = require("../middleware/authMiddleware");
+const { validate } = require("../middleware/validateMiddleware");
+
+/**
+ * 🛣 MACHINE API ROUTES
+ * Base Path: /api/machines
+ */
+
+// [PUBLIC/USER] - Fetch all machines
+router.get("/", protect, getAllMachines);
+
+// [PUBLIC/USER] - Fetch specific technical details
+router.get("/:id", protect, getMachineById);
+
+// [ADMIN ONLY] - Provision new equipment
+router.post("/", protect, admin, validate(['name', 'capacity', 'rentalPricePerDay', 'location']), createMachine);
+
+// [ADMIN ONLY] - Update machine specs
+router.put("/:id", protect, admin, updateMachine);
+
+// [ADMIN ONLY] - Decommission a machine
+router.delete("/:id", protect, admin, deleteMachine);
 
 module.exports = router;

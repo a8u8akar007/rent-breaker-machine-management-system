@@ -1,15 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-// Import controller functions
 const {
   addMaintenance,
   getMaintenanceRecords,
+  deleteMaintenance,
 } = require("../controllers/maintenanceController");
 const { protect, admin } = require("../middleware/authMiddleware");
+const { validate } = require("../middleware/validateMiddleware");
 
 // Routes for /api/maintenance
-router.post("/", protect, admin, addMaintenance);    // POST /api/maintenance (Admin only)
-router.get("/", protect, getMaintenanceRecords);    // GET  /api/maintenance
+router.get("/", protect, getMaintenanceRecords);
+router.post("/", protect, admin, validate(['machineId', 'issue', 'cost']), addMaintenance);
+router.delete("/:id", protect, admin, deleteMaintenance);
 
 module.exports = router;

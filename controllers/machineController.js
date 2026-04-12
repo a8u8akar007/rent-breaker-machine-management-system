@@ -1,75 +1,75 @@
 const Machine = require("../models/Machine");
 
-// @desc    Get all machines
-// @route   GET /api/machines
-const getAllMachines = async (req, res) => {
+// ── GET: FETCH ALL MACHINES ──
+const getAllMachines = async (req, res, next) => {
   try {
     const machines = await Machine.find();
     res.status(200).json(machines);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-// @desc    Get a single machine by ID
-// @route   GET /api/machines/:id
-const getMachineById = async (req, res) => {
+// ── GET: FETCH SINGLE MACHINE BY ID ──
+const getMachineById = async (req, res, next) => {
   try {
     const machine = await Machine.findById(req.params.id);
 
     if (!machine) {
-      return res.status(404).json({ message: "Machine not found" });
+      res.status(404);
+      return next(new Error("Machine not found"));
     }
 
     res.status(200).json(machine);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-// @desc    Create a new machine
-// @route   POST /api/machines
-const createMachine = async (req, res) => {
+// ── POST: REGISTER NEW MACHINE ──
+const createMachine = async (req, res, next) => {
   try {
     const machine = await Machine.create(req.body);
     res.status(201).json(machine);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
+    next(error);
   }
 };
 
-// @desc    Update a machine
-// @route   PUT /api/machines/:id
-const updateMachine = async (req, res) => {
+// ── PUT: UPDATE MACHINE SPECIFICATIONS ──
+const updateMachine = async (req, res, next) => {
   try {
     const machine = await Machine.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Return the updated document
-      runValidators: true, // Run schema validators on update
+      new: true,
+      runValidators: true,
     });
 
     if (!machine) {
-      return res.status(404).json({ message: "Machine not found" });
+      res.status(404);
+      return next(new Error("Machine not found"));
     }
 
     res.status(200).json(machine);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400);
+    next(error);
   }
 };
 
-// @desc    Delete a machine
-// @route   DELETE /api/machines/:id
-const deleteMachine = async (req, res) => {
+// ── DELETE: REMOVE MACHINE FROM SYSTEM ──
+const deleteMachine = async (req, res, next) => {
   try {
     const machine = await Machine.findByIdAndDelete(req.params.id);
 
     if (!machine) {
-      return res.status(404).json({ message: "Machine not found" });
+      res.status(404);
+      return next(new Error("Machine not found"));
     }
 
     res.status(200).json({ message: "Machine deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 

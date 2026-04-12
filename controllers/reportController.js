@@ -20,7 +20,7 @@ const getStats = async (req, res) => {
       {
         $match: {
           createdAt: { $gte: sixMonthsAgo },
-          status: "Completed"
+          status: { $in: ["Active", "Completed"] }
         }
       },
       {

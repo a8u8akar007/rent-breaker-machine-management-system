@@ -78,23 +78,46 @@ const RingChart = ({ pct = 0, color, label }) => {
   );
 };
 
+/**
+ * 🛰 DASHBOARD COMPONENT
+ * The "Nerve Center" of the application. 
+ * This component orchestrates data from the /reports/stats API and distributes 
+ * it across KPI cards, charts, and activity feeds.
+ */
 const Dashboard = () => {
+  // ── STATE MANAGEMENT ──
+  // stats: Stores the aggregated data object from backend (counts, revenue, activity)
+  // loading: Manages the skeleton/spinner state during API transit
   const [stats, setStats]       = useState(null);
   const [loading, setLoading]   = useState(true);
+  
+  // UI States for interactions
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifOpen, setNotifOpen]     = useState(false);
+  
   const location = useLocation();
   const navigate = useNavigate();
+
+  // ── ROLE IDENTIFICATION ──
+  // We extract user metadata from localStorage to toggle between Admin and Client views
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.role === 'admin';
 
+  /**
+   * 📡 DATA SYNCHRONIZATION
+   * Fetch system-wide statistics on component mount.
+   * This uses the API service layer to keep the UI clean of Axios logic.
+   */
   useEffect(() => {
     const fetch = async () => {
       try {
         const { data } = await Service.dashboard.getStats();
         setStats(data);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+      } catch (e) { 
+        console.error("Dashboard Sync Error:", e); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetch();
   }, []);
